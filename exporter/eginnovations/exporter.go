@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/pdata/ptrace/ptraceotlp"
 	"google.golang.org/grpc"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
@@ -25,6 +26,7 @@ type egExporter struct {
 	url           string
 	settings      component.TelemetrySettings
 	userAgent     string
+	logger        *zap.SugaredLogger
 }
 
 type TimeoutCallOption struct {
@@ -67,12 +69,14 @@ func NewEgExporter(cfg component.Config, set exporter.CreateSettings) *egExporte
 		url:       iCfg.Endpoint,
 		settings:  set.TelemetrySettings,
 		userAgent: userAgent,
+		logger:    set.Logger.Sugar(),
 	}
 }
 
 var _ consumer.ConsumeTracesFunc = (*egExporter)(nil).ConsumeTraces
 
 func (e *egExporter) ConsumeTraces(ctx context.Context, td ptrace.Traces) error {
+	e.logger.Infof("UserAgent %s: \n", e.userAgent)
 	rs := td.ResourceSpans()
 	for i := 0; i < rs.Len(); i++ {
 		rs := rs.At(i)
@@ -82,17 +86,20 @@ func (e *egExporter) ConsumeTraces(ctx context.Context, td ptrace.Traces) error 
 			spans := ils.Spans()
 			for k := 0; k < spans.Len(); k++ {
 				span := spans.At(k)
-				fmt.Printf("Span %s:\n", span.Name())
-				fmt.Printf("  TraceID: %s\n", span.TraceID())
-				fmt.Printf("  SpanID: %s\n", span.SpanID())
-				fmt.Printf("  StartTime: %s\n", time.Unix(0, int64(span.StartTimestamp())).UTC().Format(time.RFC3339Nano))
-				fmt.Printf("  EndTime: %s\n", time.Unix(0, int64(span.EndTimestamp())).UTC().Format(time.RFC3339Nano))
-			}
+				if e.config.Debug {
+					e.logger.Infof("Span %s:\n", span.Name())
+					e.logger.Infof("  TraceID: %s\n", span.TraceID())
+					e.logger.Infof("  SpanID: %s\n", span.SpanID())
+					e.logger.Infof("  StartTime: %s\n", time.Unix(0, int64(span.StartTimestamp())).UTC().Format(time.RFC3339Nano))
+					e.logger.Infof("  EndTime: %s\n", time.Unix(0, int64(span.EndTimestamp())).UTC().Format(time.RFC3339Nano))
+					e.logger.Debug("insert traces", zap.Int("records", td.SpanCount()))
+				}			}
 		}
 	}
 
 	_, err := e.traceExporter.Export(e.outgoingContext(ctx), ptraceotlp.NewExportRequestFromTraces(td), e.callOptions...)
 	if err != nil {
+		e.logger.Errorf("Error in exporting traces: ", err)
 		return err
 	}
 

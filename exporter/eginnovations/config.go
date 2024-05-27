@@ -11,6 +11,7 @@ import (
 type Config struct {
 	UserID                  string              `mapstructure:"userId"`
 	Token                   configopaque.String `mapstructure:"token"`
+	Debug                   bool                `mapstructure:"debug"`
 	configgrpc.ClientConfig `mapstructure:",squash"`
 }
 
