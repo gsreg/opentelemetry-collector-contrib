@@ -1,0 +1,9 @@
+eginnovations:
+  user_id: ""
+  token: ""
+  endpoint: localhost:9999
+  tls:
+    cert_file: ""
+    key_file: ""
+    insecure_skip_verify: false
+   

@@ -1,6 +1,8 @@
 module github.com/open-telemetry/opentelemetry-collector-contrib
 
-go 1.21.0
+go 1.21.10
+
+toolchain go1.22.3
 
 require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/connector/countconnector v0.101.0
@@ -856,6 +858,8 @@ replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/googl
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/influxdbexporter => ./exporter/influxdbexporter
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/instanaexporter => ./exporter/instanaexporter
+
+replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations => ../../exporter/eginnovations
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/kafkaexporter => ./exporter/kafkaexporter
 

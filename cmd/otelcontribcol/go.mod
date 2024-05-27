@@ -2,7 +2,7 @@
 
 module github.com/open-telemetry/opentelemetry-collector-contrib/cmd/otelcontribcol
 
-go 1.21.0
+go 1.21.5
 
 toolchain go1.21.10
 
@@ -33,6 +33,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/coralogixexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datasetexporter v0.101.0
+	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations v0.0.0-00010101000000-000000000000
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/elasticsearchexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/fileexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/googlecloudexporter v0.101.0
@@ -1185,6 +1186,8 @@ replace github.com/open-telemetry/opentelemetry-collector-contrib/receiver/googl
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/sumologicexporter => ../../exporter/sumologicexporter
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/instanaexporter => ../../exporter/instanaexporter
+
+replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations => ../../exporter/eginnovations
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/honeycombmarkerexporter => ../../exporter/honeycombmarkerexporter
 

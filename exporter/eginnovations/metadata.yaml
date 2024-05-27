@@ -1,0 +1,15 @@
+type: eginnovations
+
+status:
+  class: exporter
+  stability:
+    development: [traces]
+
+tests:
+  config:
+    userId: "abc"
+    token: ""
+    endpoint: "eginnovations.com"
+  expect_consumer_error: true
+  goleak:
+    skip: true
