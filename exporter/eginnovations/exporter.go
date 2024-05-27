@@ -27,6 +27,12 @@ type egExporter struct {
 	userAgent     string
 }
 
+type TimeoutCallOption struct {
+	grpc.EmptyCallOption
+
+	forcedTimeout time.Duration
+}
+
 func (e *egExporter) Start(ctx context.Context, host component.Host) (err error) {
 
 	opts := e.configureDialOpts()
@@ -124,6 +130,39 @@ func (c *loginCreds) RequireTransportSecurity() bool {
 	return true
 }
 
+func WithForcedTimeout(forceTimeout time.Duration) TimeoutCallOption {
+	return TimeoutCallOption{forcedTimeout: forceTimeout}
+}
+
+func getForcedTimeout(callOptions []grpc.CallOption) (time.Duration, bool) {
+	for _, opt := range callOptions {
+		if co, ok := opt.(TimeoutCallOption); ok {
+			return co.forcedTimeout, true
+		}
+	}
+
+	return 0, false
+}
+
+func TimeoutInterceptor(t time.Duration) grpc.UnaryClientInterceptor {
+	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn,
+		invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		timeout := t
+		if v, ok := getForcedTimeout(opts); ok {
+			timeout = v
+		}
+
+		if timeout <= 0 {
+			return invoker(ctx, method, req, reply, cc, opts...)
+		}
+
+		ctx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		return invoker(ctx, method, req, reply, cc, opts...)
+	}
+}
+
 func (e *egExporter) configureDialOpts() []grpc.DialOption {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithPerRPCCredentials(&loginCreds{
@@ -131,7 +170,7 @@ func (e *egExporter) configureDialOpts() []grpc.DialOption {
 		token:  e.config.Token,
 	}))
 	opts = append(opts, grpc.WithUserAgent(e.userAgent))
-	opts = append(opts, grpc.WithTimeout(15*time.Second))
+	opts = append(opts, grpc.WithUnaryInterceptor(TimeoutInterceptor(time.Duration(15)*time.Second)))
 	opts = append(opts, grpc.WithUserAgent(e.userAgent))
 	return opts
 }
