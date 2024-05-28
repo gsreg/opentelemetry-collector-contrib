@@ -41,15 +41,11 @@ func (e *egExporter) Start(ctx context.Context, host component.Host) (err error)
 	tls := e.config.TLSSetting.Insecure
 	if tls {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if e.clientConn, err = e.config.ToClientConn(ctx, host, e.settings, opts...); err != nil {
-			return err
-		}
-	} else {
-		if e.clientConn, err = e.config.ToClientConn(ctx, host, e.settings, opts...); err != nil {
-			return err
-		}
 	}
 
+	if e.clientConn, err = e.config.ToClientConn(ctx, host, e.settings, opts...); err != nil {
+		return err
+	}
 	e.traceExporter = ptraceotlp.NewGRPCClient(e.clientConn)
 	if e.config.Headers == nil {
 		e.config.Headers = make(map[string]configopaque.String)
