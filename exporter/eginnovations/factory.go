@@ -23,8 +23,6 @@ func NewFactory() exporter.Factory {
 
 func createDefaultConfig() component.Config {
 	return &Config{
-		UserID: "",
-		Token:  "",
 		ClientConfig: configgrpc.ClientConfig{
 			Compression: configcompression.TypeGzip,
 		},

@@ -21,9 +21,6 @@ func (c *Config) Validate() error {
 	if c.Endpoint == "" {
 		return fmt.Errorf("endpoint not specified, please fix the configuration")
 	}
-	if c.UserID == "" || c.Token == "" {
-		return fmt.Errorf("userId or token not specified,please fix the configuration")
-	}
 	return nil
 
 }

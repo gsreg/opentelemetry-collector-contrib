@@ -23,30 +23,8 @@ func TestValidate(t *testing.T) {
 			err:  "endpoint not specified, please fix the configuration",
 		},
 		{
-			name: "no userId",
-			cfg: &Config{
-				Token: "xxxxxxxxx",
-				ClientConfig: configgrpc.ClientConfig{
-					Endpoint: "eginnovations.com",
-				},
-			},
-			err: "userId or token not specified,please fix the configuration",
-		},
-		{
-			name: "no token",
-			cfg: &Config{
-				UserID: "user1",
-				ClientConfig: configgrpc.ClientConfig{
-					Endpoint: "eginnovations.com",
-				},
-			},
-			err: "userId or token not specified,please fix the configuration",
-		},
-		{
 			name: "TLS settings are valid",
 			cfg: &Config{
-				UserID: "user1",
-				Token:  "xxxxxxxxx",
 				ClientConfig: configgrpc.ClientConfig{
 					Endpoint: "eginnovations.com",
 					TLSSetting: configtls.ClientConfig{

@@ -12,8 +12,8 @@ import (
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/pdata/ptrace/ptraceotlp"
-	"google.golang.org/grpc"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
@@ -93,7 +93,8 @@ func (e *egExporter) ConsumeTraces(ctx context.Context, td ptrace.Traces) error 
 					e.logger.Infof("  StartTime: %s\n", time.Unix(0, int64(span.StartTimestamp())).UTC().Format(time.RFC3339Nano))
 					e.logger.Infof("  EndTime: %s\n", time.Unix(0, int64(span.EndTimestamp())).UTC().Format(time.RFC3339Nano))
 					e.logger.Debug("insert traces", zap.Int("records", td.SpanCount()))
-				}			}
+				}
+			}
 		}
 	}
 
@@ -122,13 +123,13 @@ func (e *egExporter) Shutdown(context.Context) error {
 }
 
 type loginCreds struct {
-	Userid string
+	userId string
 	token  configopaque.String
 }
 
 func (c *loginCreds) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
 	return map[string]string{
-		"userid": c.Userid,
+		"userId": c.userId,
 		"token":  string(c.token),
 	}, nil
 }
@@ -173,7 +174,7 @@ func TimeoutInterceptor(t time.Duration) grpc.UnaryClientInterceptor {
 func (e *egExporter) configureDialOpts() []grpc.DialOption {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithPerRPCCredentials(&loginCreds{
-		Userid: e.config.UserID,
+		userId: e.config.UserID,
 		token:  e.config.Token,
 	}))
 	opts = append(opts, grpc.WithUserAgent(e.userAgent))
