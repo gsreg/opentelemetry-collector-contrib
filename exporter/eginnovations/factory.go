@@ -1,3 +1,5 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
 package eginnovations
 
 import (
@@ -37,7 +39,7 @@ func createTracesExporter(
 
 ) (exporter.Traces, error) {
 	cfg := config.(*Config)
-	egExporter := NewEgExporter(config, set)
+	egExporter := newEgExporter(config, set)
 
 	return exporterhelper.NewTracesExporter(
 		ctx,

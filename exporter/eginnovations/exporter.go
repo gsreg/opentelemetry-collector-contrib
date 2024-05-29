@@ -1,3 +1,5 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
 package eginnovations
 
 import (
@@ -57,7 +59,7 @@ func (e *egExporter) Start(ctx context.Context, host component.Host) (err error)
 	return nil
 }
 
-func NewEgExporter(cfg component.Config, set exporter.CreateSettings) *egExporter {
+func newEgExporter(cfg component.Config, set exporter.CreateSettings) *egExporter {
 	iCfg := cfg.(*Config)
 	userAgent := fmt.Sprintf("%s/%s (%s/%s)", set.BuildInfo.Description, set.BuildInfo.Version, runtime.GOOS, runtime.GOARCH)
 	return &egExporter{
@@ -119,13 +121,13 @@ func (e *egExporter) Shutdown(context.Context) error {
 }
 
 type loginCreds struct {
-	userId string
+	userID string
 	token  configopaque.String
 }
 
 func (c *loginCreds) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
 	return map[string]string{
-		"userId": c.userId,
+		"userId": c.userID,
 		"token":  string(c.token),
 	}, nil
 }
@@ -149,7 +151,7 @@ func getForcedTimeout(callOptions []grpc.CallOption) (time.Duration, bool) {
 }
 
 func TimeoutInterceptor(t time.Duration) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn,
+	return func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn,
 		invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		timeout := t
 		if v, ok := getForcedTimeout(opts); ok {
@@ -170,7 +172,7 @@ func TimeoutInterceptor(t time.Duration) grpc.UnaryClientInterceptor {
 func (e *egExporter) configureDialOpts() []grpc.DialOption {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithPerRPCCredentials(&loginCreds{
-		userId: e.config.UserID,
+		userID: e.config.UserID,
 		token:  e.config.Token,
 	}))
 	opts = append(opts, grpc.WithUserAgent(e.userAgent))
