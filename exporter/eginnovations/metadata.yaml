@@ -7,8 +7,6 @@ status:
 
 tests:
   config:
-    userId: "abc"
-    token: ""
     endpoint: "eginnovations.com"
   expect_consumer_error: true
   goleak:

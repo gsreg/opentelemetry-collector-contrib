@@ -1,9 +1,19 @@
 eginnovations:
-  user_id: ""
-  token: ""
   endpoint: localhost:9999
   tls:
     cert_file: ""
     key_file: ""
     insecure_skip_verify: false
+
+eginnovations/all:
+  user_id: "user1"
+  token: "xxxxxxxxx"
+  endpoint: eginnovations.com
+  tls:
+    cert_file: ""
+    key_file: ""
+    insecure_skip_verify: false
+    insecure: false
+  headers:
+    hdr1: "value1"
    

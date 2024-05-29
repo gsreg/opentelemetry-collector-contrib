@@ -1,3 +1,5 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
 package eginnovations
 
 import (
@@ -12,6 +14,7 @@ import (
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/pdata/ptrace/ptraceotlp"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
@@ -25,6 +28,7 @@ type egExporter struct {
 	url           string
 	settings      component.TelemetrySettings
 	userAgent     string
+	logger        *zap.SugaredLogger
 }
 
 type TimeoutCallOption struct {
@@ -39,15 +43,11 @@ func (e *egExporter) Start(ctx context.Context, host component.Host) (err error)
 	tls := e.config.TLSSetting.Insecure
 	if tls {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if e.clientConn, err = e.config.ToClientConn(ctx, host, e.settings, opts...); err != nil {
-			return err
-		}
-	} else {
-		if e.clientConn, err = e.config.ToClientConn(ctx, host, e.settings, opts...); err != nil {
-			return err
-		}
 	}
 
+	if e.clientConn, err = e.config.ToClientConn(ctx, host, e.settings, opts...); err != nil {
+		return err
+	}
 	e.traceExporter = ptraceotlp.NewGRPCClient(e.clientConn)
 	if e.config.Headers == nil {
 		e.config.Headers = make(map[string]configopaque.String)
@@ -59,7 +59,7 @@ func (e *egExporter) Start(ctx context.Context, host component.Host) (err error)
 	return nil
 }
 
-func NewEgExporter(cfg component.Config, set exporter.CreateSettings) *egExporter {
+func newEgExporter(cfg component.Config, set exporter.CreateSettings) *egExporter {
 	iCfg := cfg.(*Config)
 	userAgent := fmt.Sprintf("%s/%s (%s/%s)", set.BuildInfo.Description, set.BuildInfo.Version, runtime.GOOS, runtime.GOARCH)
 	return &egExporter{
@@ -67,12 +67,14 @@ func NewEgExporter(cfg component.Config, set exporter.CreateSettings) *egExporte
 		url:       iCfg.Endpoint,
 		settings:  set.TelemetrySettings,
 		userAgent: userAgent,
+		logger:    set.Logger.Sugar(),
 	}
 }
 
 var _ consumer.ConsumeTracesFunc = (*egExporter)(nil).ConsumeTraces
 
 func (e *egExporter) ConsumeTraces(ctx context.Context, td ptrace.Traces) error {
+	e.logger.Infof("UserAgent %s: \n", e.userAgent)
 	rs := td.ResourceSpans()
 	for i := 0; i < rs.Len(); i++ {
 		rs := rs.At(i)
@@ -82,17 +84,21 @@ func (e *egExporter) ConsumeTraces(ctx context.Context, td ptrace.Traces) error 
 			spans := ils.Spans()
 			for k := 0; k < spans.Len(); k++ {
 				span := spans.At(k)
-				fmt.Printf("Span %s:\n", span.Name())
-				fmt.Printf("  TraceID: %s\n", span.TraceID())
-				fmt.Printf("  SpanID: %s\n", span.SpanID())
-				fmt.Printf("  StartTime: %s\n", time.Unix(0, int64(span.StartTimestamp())).UTC().Format(time.RFC3339Nano))
-				fmt.Printf("  EndTime: %s\n", time.Unix(0, int64(span.EndTimestamp())).UTC().Format(time.RFC3339Nano))
+				if e.config.Debug {
+					e.logger.Infof("Span %s:\n", span.Name())
+					e.logger.Infof("  TraceID: %s\n", span.TraceID())
+					e.logger.Infof("  SpanID: %s\n", span.SpanID())
+					e.logger.Infof("  StartTime: %s\n", time.Unix(0, int64(span.StartTimestamp())).UTC().Format(time.RFC3339Nano))
+					e.logger.Infof("  EndTime: %s\n", time.Unix(0, int64(span.EndTimestamp())).UTC().Format(time.RFC3339Nano))
+					e.logger.Debug("insert traces", zap.Int("records", td.SpanCount()))
+				}
 			}
 		}
 	}
 
 	_, err := e.traceExporter.Export(e.outgoingContext(ctx), ptraceotlp.NewExportRequestFromTraces(td), e.callOptions...)
 	if err != nil {
+		e.logger.Errorf("Error in exporting traces: ", err)
 		return err
 	}
 
@@ -115,13 +121,13 @@ func (e *egExporter) Shutdown(context.Context) error {
 }
 
 type loginCreds struct {
-	Userid string
+	userID string
 	token  configopaque.String
 }
 
 func (c *loginCreds) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
 	return map[string]string{
-		"userid": c.Userid,
+		"userId": c.userID,
 		"token":  string(c.token),
 	}, nil
 }
@@ -145,7 +151,7 @@ func getForcedTimeout(callOptions []grpc.CallOption) (time.Duration, bool) {
 }
 
 func TimeoutInterceptor(t time.Duration) grpc.UnaryClientInterceptor {
-	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn,
+	return func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn,
 		invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		timeout := t
 		if v, ok := getForcedTimeout(opts); ok {
@@ -166,7 +172,7 @@ func TimeoutInterceptor(t time.Duration) grpc.UnaryClientInterceptor {
 func (e *egExporter) configureDialOpts() []grpc.DialOption {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithPerRPCCredentials(&loginCreds{
-		Userid: e.config.UserID,
+		userID: e.config.UserID,
 		token:  e.config.Token,
 	}))
 	opts = append(opts, grpc.WithUserAgent(e.userAgent))
