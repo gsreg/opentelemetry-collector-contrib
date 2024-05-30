@@ -4,6 +4,7 @@ package eginnovations
 
 import (
 	"context"
+	"time"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configcompression"
@@ -47,7 +48,7 @@ func createTracesExporter(
 		cfg,
 		egExporter.ConsumeTraces,
 		exporterhelper.WithStart(egExporter.Start),
-		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 0}),
+		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 15 * time.Second}),
 		exporterhelper.WithRetry(configretry.BackOffConfig{Enabled: false}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{Enabled: false}),
 	)
