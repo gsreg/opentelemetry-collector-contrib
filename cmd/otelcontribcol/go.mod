@@ -33,7 +33,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/coralogixexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datasetexporter v0.101.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations v0.0.0-00010101000000-000000000000
+	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter v0.0.0-00010101000000-000000000000
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/elasticsearchexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/fileexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/googlecloudexporter v0.101.0
@@ -1186,7 +1186,7 @@ replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/sumol
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/instanaexporter => ../../exporter/instanaexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations => ../../exporter/eginnovations
+replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter => ../../exporter/eginnovationsexporter
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/honeycombmarkerexporter => ../../exporter/honeycombmarkerexporter
 

@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations
+module github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter
 
 go 1.21.5
 

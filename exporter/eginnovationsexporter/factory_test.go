@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package eginnovations // import "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations"
+package eginnovationsexporter // import "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter"
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 	"go.opentelemetry.io/collector/confmap/confmaptest"
 	"go.opentelemetry.io/collector/exporter/exportertest"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations/internal/metadata"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter/internal/metadata"
 )
 
 func TestCreateDefaultConfig(t *testing.T) {

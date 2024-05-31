@@ -1,6 +1,6 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
-package eginnovations // import "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations"
+package eginnovationsexporter // import "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter"
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 )
 
 type Config struct {
-	UserID                  string              `mapstructure:"userId"`
+	UserID                  string              `mapstructure:"user_id"`
 	Token                   configopaque.String `mapstructure:"token"`
 	Debug                   bool                `mapstructure:"debug"`
 	configgrpc.ClientConfig `mapstructure:",squash"`
