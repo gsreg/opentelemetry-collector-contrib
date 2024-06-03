@@ -4,7 +4,7 @@ module github.com/open-telemetry/opentelemetry-collector-contrib/cmd/otelcontrib
 
 go 1.21.5
 
-toolchain go1.21.10
+toolchain go1.21.6
 
 require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider v0.101.0
@@ -33,7 +33,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/coralogixexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datasetexporter v0.101.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter v0.0.0-00010101000000-000000000000
+	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovationsexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/elasticsearchexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/fileexporter v0.101.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/googlecloudexporter v0.101.0

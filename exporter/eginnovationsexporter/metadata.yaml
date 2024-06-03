@@ -4,6 +4,8 @@ status:
   class: exporter
   stability:
     development: [traces]
+  codeowners:
+    active: [gsreg]
 
 tests:
   config:

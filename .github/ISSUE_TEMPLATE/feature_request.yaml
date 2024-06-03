@@ -45,6 +45,7 @@ body:
       - exporter/coralogix
       - exporter/datadog
       - exporter/dataset
+      - exporter/eginnovations
       - exporter/elasticsearch
       - exporter/file
       - exporter/googlecloud
