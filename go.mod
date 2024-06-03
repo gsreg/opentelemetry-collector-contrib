@@ -860,8 +860,6 @@ replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/influ
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/instanaexporter => ./exporter/instanaexporter
 
-replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/eginnovations => ../../exporter/eginnovations
-
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/kafkaexporter => ./exporter/kafkaexporter
 
 replace github.com/open-telemetry/opentelemetry-collector-contrib/exporter/loadbalancingexporter => ./exporter/loadbalancingexporter
