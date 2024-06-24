@@ -9,3 +9,13 @@ status:
   warnings: [Statefulness]
   codeowners:
     active: [sh0rez, RichieSams, jpkrohling]
+
+telemetry:
+  metrics:
+    receiver_received_delta_metrics:
+      enabled: true
+      description: Number of delta metrics received.
+      unit: "1"
+      sum:
+        value_type: int
+        monotonic: true

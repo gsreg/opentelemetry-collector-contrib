@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/processor"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.uber.org/zap"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor/internal/data"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor/internal/delta"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor/internal/maybe"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor/internal/metadata"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor/internal/metrics"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor/internal/streams"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/deltatocumulativeprocessor/internal/telemetry"
@@ -34,25 +36,30 @@ type Processor struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	sums Pipeline[data.Number]
-	expo Pipeline[data.ExpHistogram]
-
-	mtx sync.Mutex
+	sums             Pipeline[data.Number]
+	expo             Pipeline[data.ExpHistogram]
+	telemetryBuilder *metadata.TelemetryBuilder
+	mtx              sync.Mutex
 }
 
-func newProcessor(cfg *Config, log *zap.Logger, meter metric.Meter, next consumer.Metrics) *Processor {
+func newProcessor(cfg *Config, log *zap.Logger, set processor.Settings, next consumer.Metrics) *Processor {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	tel := telemetry.New(meter)
+	tel := telemetry.New(metadata.Meter(set.TelemetrySettings))
+
+	telemetryBuilder, err := metadata.NewTelemetryBuilder(set.TelemetrySettings)
+	if err != nil {
+		return nil
+	}
 
 	proc := Processor{
-		log:    log,
-		ctx:    ctx,
-		cancel: cancel,
-		next:   next,
-
-		sums: pipeline[data.Number](cfg, &tel),
-		expo: pipeline[data.ExpHistogram](cfg, &tel),
+		log:              log,
+		ctx:              ctx,
+		cancel:           cancel,
+		next:             next,
+		telemetryBuilder: telemetryBuilder,
+		sums:             pipeline[data.Number](cfg, &tel),
+		expo:             pipeline[data.ExpHistogram](cfg, &tel),
 	}
 
 	return &proc
@@ -156,6 +163,9 @@ func (p *Processor) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) erro
 	if errs != nil {
 		return errs
 	}
+	p.telemetryBuilder.ReceiverReceivedDeltaMetrics.Add(context.Background(),
+		1,
+		metric.WithAttributes(attribute.String("delta_key", "")))
 
 	return p.next.ConsumeMetrics(ctx, md)
 }
