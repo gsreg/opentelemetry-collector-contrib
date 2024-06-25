@@ -11,15 +11,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/groupbytraceprocessor/internal/metadata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.opencensus.io/stats"
-	"go.opencensus.io/stats/view"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/processor/processortest"
 	"go.uber.org/zap"
+
+	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/groupbytraceprocessor/internal/metadata"
 )
 
 func TestEventCallback(t *testing.T) {
@@ -472,18 +471,4 @@ func TestDoWithTimeout_TimeoutTrigger(t *testing.T) {
 
 	// verify
 	assert.WithinDuration(t, start, time.Now(), 100*time.Millisecond)
-}
-
-func getGaugeValue(t *testing.T, gauge *stats.Int64Measure) float64 {
-	viewData, err := view.RetrieveData("processor_groupbytrace_" + gauge.Name())
-	require.NoError(t, err)
-	require.Len(t, viewData, 1) // we expect exactly one data point, the last value
-
-	return viewData[0].Data.(*view.LastValueData).Value
-}
-
-func assertGaugeNotCreated(t *testing.T, gauge *stats.Int64Measure) {
-	viewData, err := view.RetrieveData("processor_groupbytrace_" + gauge.Name())
-	require.NoError(t, err)
-	assert.Len(t, viewData, 0, "gauge exists already but shouldn't")
 }
