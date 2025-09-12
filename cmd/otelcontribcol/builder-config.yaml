@@ -60,6 +60,7 @@ extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/cgroupruntimeextension v0.135.0
 
 exporters:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/egexporter v0.0.1
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.135.1-0.20250911090542-8b3a08ca2a38
   - gomod: go.opentelemetry.io/collector/exporter/nopexporter v0.135.1-0.20250911090542-8b3a08ca2a38
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.135.1-0.20250911090542-8b3a08ca2a38
